@@ -4,7 +4,7 @@
 
 For the machine learning section, our goal is to predict next-year median sale price at the ZCTA-year level. Each row represents one California ZCTA in one year. We trained and cross-validated using observations from 2012 through 2022, then held out 2023 as the final test set. Because the target for each row is next-year median sale price, the 2023 test rows are evaluated against 2024 median sale price.
 
-We used the same 54 selected features for all models so the comparison is fair. These features include prior housing-market variables, demographics, school quality, crime, amenities, and minimum wage. We modeled log median sale price because housing prices are highly skewed, but we report performance both in log scale and dollars.
+We used the same 54 selected features for all models so the comparison is fair. These features include prior housing-market variables, demographics, school quality, crime, amenities, and minimum wage. We modeled log median sale price because housing prices are highly skewed. For evaluation, the headline metric is now relative error: for each ZCTA, prediction minus actual 2024 median sale price, divided by the actual 2024 median sale price and multiplied by 100.
 
 ## Slide 2: Linear Regression
 
@@ -18,7 +18,7 @@ One important categorical feature here is parent_metro_region. This captures the
 
 This predicted-versus-actual plot shows how Ridge performs on the 2023 holdout, which predicts 2024 prices. The left panel uses a log scale so we can see the full range, including high-price ZCTAs. The right panel zooms into the main cluster.
 
-The linear model has reasonable log-scale performance, but it struggles badly on the dollar scale. The main issue is extrapolation for expensive ZCTAs. A few high-end areas are overpredicted by a large amount, which makes the dollar RMSE very large and gives a negative dollar R-squared. So this model is useful for interpretation, but not our best predictive model.
+The linear model has reasonable log-scale performance, but it struggles badly on high-end extrapolation. Its 2023 holdout MAPE is about 14.9%, with median absolute percent error about 10.4%. The negative dollar R-squared is not a sign that the log model failed; it comes from evaluating squared dollar errors, where a few very expensive ZCTAs dominate the metric.
 
 ## Slide 4: Random Forest
 
@@ -32,7 +32,7 @@ The tree visual here is not the full forest. It is just one example tree, trunca
 
 This slide shows the Random Forest holdout predictions. Compared with the linear model, the point cloud is closer to the diagonal line, which means predicted prices are closer to actual prices.
 
-The Random Forest performs much better than Ridge on the final holdout. Its MAE is about $103K, RMSE is about $246K, and dollar R-squared is about 0.874. The model still tends to underpredict some very expensive ZCTAs, but it avoids the extreme high-end overprediction problem we saw in the linear model.
+The Random Forest performs much better than Ridge on the final holdout. Its MAPE is about 9.5%, and its median absolute percent error is about 6.9%. The model still tends to underpredict some very expensive ZCTAs, but it avoids the extreme high-end overprediction problem we saw in the linear model.
 
 ## Slide 6: XGBoost
 
@@ -46,11 +46,11 @@ The feature importance plot shows that annual median sale price dominates. This 
 
 This predicted-versus-actual plot shows that XGBoost is the strongest model. Most points are very close to the diagonal line, especially in the main cluster. The model still misses some high-end ZCTAs, but the errors are much smaller than with the other two methods.
 
-On the 2023 holdout, XGBoost has an MAE of about $68.8K, RMSE of about $135.1K, and dollar R-squared of about 0.962. It also has the best log-scale R-squared, about 0.975.
+On the 2023 holdout, XGBoost has the lowest relative error: MAPE is about 6.8%, median absolute percent error is about 5.4%, and relative RMSE is about 9.5%. It also has the best log-scale R-squared, about 0.975.
 
 ## Slide 8: Results
 
-This table summarizes the main comparison. Ridge regression is the most interpretable, but it performs worst for prediction because the linear structure does not handle the high-end price distribution well. Random Forest improves substantially because it captures nonlinear patterns and uses many decision trees. XGBoost performs best overall because boosting can learn more refined nonlinear corrections.
+This table summarizes the main comparison using relative error rather than only absolute dollars. Ridge regression is the most interpretable, but it performs worst for prediction because the linear structure does not handle the high-end price distribution well. Random Forest improves substantially because it captures nonlinear patterns and uses many decision trees. XGBoost performs best overall because boosting can learn more refined nonlinear corrections.
 
 The main conclusion is that XGBoost is our strongest predictive model, while Random Forest is useful for interpreting feature importance and Linear Regression is useful as a transparent baseline. Across the models, the most important predictors are prior housing-market features, especially annual median sale price and annual median price per square foot, followed by socioeconomic variables like income and education.
 
@@ -72,6 +72,6 @@ Add one sentence on Slide 1 or Slide 8: "We used expanding time-blocked cross-va
 
 Add one sentence on Slide 3: "The linear model's diagnostic issue is high-end extrapolation, visible in the predicted-versus-actual plot."
 
-Add one sentence on Slide 8: "We define a good model as one with lower MAE/RMSE, higher holdout R-squared, and predictions close to the diagonal."
+Add one sentence on Slide 8: "We define a good model as one with lower MAPE/relative RMSE, higher log-scale holdout R-squared, and predictions close to the diagonal."
 
 Fix small slide text issues: change "Regularization, shrinkage, and subsampling.." to "Regularization, shrinkage, and subsampling." Also consider writing "Median sale price dominates" instead of "Median_sale_price dominates !!!" for a more presentation-ready tone.

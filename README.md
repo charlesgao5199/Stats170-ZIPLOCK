@@ -32,6 +32,7 @@ python3 scripts/pipeline/build_phase2_model_table.py
 python3 scripts/pipeline/build_report_figures.py
 python3 scripts/modeling/prepare_phase2_model_data.py
 python3 scripts/modeling/select_phase2_features.py
+python3 scripts/modeling/relative_error_metrics.py
 ```
 
 The scripts resolve paths from the project root, so they can also be invoked by absolute path.
