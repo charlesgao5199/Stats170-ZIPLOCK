@@ -19,6 +19,7 @@ MODEL_OUTPUTS = [
         "model_label": None,
         "predictions_path": OUTPUT_ROOT / "linear-regression" / "linear_regression_2023_holdout_predictions.csv",
         "metrics_path": OUTPUT_ROOT / "linear-regression" / "linear_regression_2023_holdout_metrics.csv",
+        "summary_model_filter": ["ridge_linear_regression"],
     },
     {
         "model_label": "random_forest",
@@ -121,10 +122,21 @@ def update_model_output(spec: dict[str, object]) -> pd.DataFrame:
 
     summary = summarize_by_model(predictions)
     updated_metrics = update_metrics_file(metrics_path, summary)
+    summary_model_filter = spec.get("summary_model_filter")
+    if summary_model_filter and "model" in updated_metrics.columns:
+        updated_metrics = updated_metrics[
+            updated_metrics["model"].isin(summary_model_filter)
+        ].copy()
 
     metadata_columns = [
         col
-        for col in ["model", "train_years", "test_year", "target_year", "ridge_alpha"]
+        for col in [
+            "model",
+            "train_years",
+            "test_year",
+            "target_year",
+            "ridge_alpha",
+        ]
         if col in updated_metrics.columns
     ]
     metric_columns = [
@@ -133,9 +145,12 @@ def update_model_output(spec: dict[str, object]) -> pd.DataFrame:
             "mae_dollars",
             "rmse_dollars",
             "r2_dollars",
-            "mae_log",
-            "rmse_log",
-            "r2_log",
+            "mae_log_change",
+            "rmse_log_change",
+            "r2_log_change",
+            "mae_growth_pct_points",
+            "rmse_growth_pct_points",
+            "r2_growth_pct",
             "rows",
             "mean_error_pct",
             "mape_pct",
@@ -156,7 +171,14 @@ def main() -> int:
 
     display_columns = [
         col
-        for col in ["model", "mape_pct", "median_ape_pct", "rmse_pct", "r2_log", "r2_dollars"]
+        for col in [
+            "model",
+            "mape_pct",
+            "median_ape_pct",
+            "rmse_pct",
+            "r2_log_change",
+            "r2_dollars",
+        ]
         if col in consolidated.columns
     ]
     print(f"Wrote consolidated relative-error metrics: {CONSOLIDATED_OUTPUT}")

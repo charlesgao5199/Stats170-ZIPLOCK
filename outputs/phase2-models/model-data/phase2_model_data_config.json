@@ -1,8 +1,9 @@
 {
   "input_path": "/Users/charlesgao/Desktop/spring2026/stats170B/project/model-ready/phase2_model_ready.csv",
-  "target_column": "next_year_annual_median_sale_price",
-  "target_alias": "y_next_year_median_sale_price",
-  "log_target_alias": "y_log_next_year_median_sale_price",
+  "target_column": "target_median_sale_price_log_change_next_year",
+  "target_alias": "y_next_year_median_sale_price_log_change",
+  "price_target_column": "next_year_annual_median_sale_price",
+  "price_target_alias": "y_next_year_median_sale_price",
   "train_years": [
     2012,
     2022

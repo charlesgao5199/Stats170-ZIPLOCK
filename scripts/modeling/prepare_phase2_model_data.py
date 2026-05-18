@@ -18,9 +18,10 @@ OUTPUT_DIR = PROJECT_ROOT / "outputs" / "phase2-models" / "model-data"
 TRAIN_START_YEAR = 2012
 TRAIN_END_YEAR = 2022
 TEST_YEAR = 2023
-TARGET_COLUMN = "next_year_annual_median_sale_price"
-TARGET_ALIAS = "y_next_year_median_sale_price"
-LOG_TARGET_ALIAS = "y_log_next_year_median_sale_price"
+PRICE_TARGET_COLUMN = "next_year_annual_median_sale_price"
+TARGET_COLUMN = "target_median_sale_price_log_change_next_year"
+PRICE_TARGET_ALIAS = "y_next_year_median_sale_price"
+TARGET_ALIAS = "y_next_year_median_sale_price_log_change"
 
 IDENTIFIER_COLUMNS = {
     "zcta5",
@@ -29,11 +30,11 @@ IDENTIFIER_COLUMNS = {
 }
 
 EXPLICIT_LEAKAGE_COLUMNS = {
+    PRICE_TARGET_COLUMN,
     TARGET_COLUMN,
     "next_year_months_observed",
     "next_year_full_year_coverage",
     "target_median_sale_price_pct_change_next_year",
-    "target_median_sale_price_log_change_next_year",
     "has_next_year_target",
     "target_next_year_complete",
     "baseline_model_eligible",
@@ -150,17 +151,18 @@ def load_phase2_table(path: Path) -> pd.DataFrame:
     frame["zcta5"] = frame["zcta5"].astype(str).str.zfill(5)
     frame["year"] = pd.to_numeric(frame["year"], errors="raise").astype(int)
     frame[TARGET_COLUMN] = pd.to_numeric(frame[TARGET_COLUMN], errors="coerce")
+    frame[PRICE_TARGET_COLUMN] = pd.to_numeric(frame[PRICE_TARGET_COLUMN], errors="coerce")
     frame[TARGET_ALIAS] = frame[TARGET_COLUMN]
-    frame[LOG_TARGET_ALIAS] = np.where(
-        frame[TARGET_ALIAS].gt(0),
-        np.log(frame[TARGET_ALIAS]),
-        np.nan,
-    )
+    frame[PRICE_TARGET_ALIAS] = frame[PRICE_TARGET_COLUMN]
     return frame
 
 
 def filter_valid_target(frame: pd.DataFrame, allow_incomplete_target: bool) -> pd.DataFrame:
-    valid = frame[TARGET_ALIAS].notna() & frame[TARGET_ALIAS].gt(0)
+    valid = (
+        frame[TARGET_ALIAS].notna()
+        & frame[PRICE_TARGET_ALIAS].notna()
+        & frame[PRICE_TARGET_ALIAS].gt(0)
+    )
     if not allow_incomplete_target:
         valid &= frame["target_next_year_complete"].eq(True)
     return frame[valid].copy()
@@ -168,7 +170,7 @@ def filter_valid_target(frame: pd.DataFrame, allow_incomplete_target: bool) -> p
 
 def choose_feature_columns(frame: pd.DataFrame) -> list[str]:
     excluded = set(IDENTIFIER_COLUMNS) | set(EXPLICIT_LEAKAGE_COLUMNS)
-    excluded |= {TARGET_ALIAS, LOG_TARGET_ALIAS}
+    excluded |= {TARGET_ALIAS, PRICE_TARGET_ALIAS}
     return [col for col in frame.columns if col not in excluded]
 
 
@@ -258,7 +260,8 @@ def write_outputs(
         "input_path": str(input_path),
         "target_column": TARGET_COLUMN,
         "target_alias": TARGET_ALIAS,
-        "log_target_alias": LOG_TARGET_ALIAS,
+        "price_target_column": PRICE_TARGET_COLUMN,
+        "price_target_alias": PRICE_TARGET_ALIAS,
         "train_years": [TRAIN_START_YEAR, TRAIN_END_YEAR],
         "test_year": TEST_YEAR,
         "allow_incomplete_target": allow_incomplete_target,
@@ -287,8 +290,8 @@ def main() -> int:
         "zcta5",
         "year",
         "split",
+        PRICE_TARGET_ALIAS,
         TARGET_ALIAS,
-        LOG_TARGET_ALIAS,
         *[col for col in feature_columns if col not in {"year"}],
     ]
     train = train[output_columns].sort_values(["year", "zcta5"]).reset_index(drop=True)

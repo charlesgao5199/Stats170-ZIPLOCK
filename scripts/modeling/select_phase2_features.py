@@ -27,7 +27,7 @@ ID_AND_TARGET_COLUMNS = [
     "year",
     "split",
     "y_next_year_median_sale_price",
-    "y_log_next_year_median_sale_price",
+    "y_next_year_median_sale_price_log_change",
 ]
 
 SELECTED_CRIME_FEATURES = {
@@ -324,8 +324,8 @@ def build_config(selected_schema: pd.DataFrame) -> dict[str, object]:
 
     return {
         "target_columns": {
-            "raw": "y_next_year_median_sale_price",
-            "log": "y_log_next_year_median_sale_price",
+            "price": "y_next_year_median_sale_price",
+            "log_change": "y_next_year_median_sale_price_log_change",
         },
         "selected_feature_count": int(len(selected)),
         "excluded_feature_count": int(len(excluded)),

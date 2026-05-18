@@ -1,7 +1,7 @@
 {
   "target_columns": {
-    "raw": "y_next_year_median_sale_price",
-    "log": "y_log_next_year_median_sale_price"
+    "price": "y_next_year_median_sale_price",
+    "log_change": "y_next_year_median_sale_price_log_change"
   },
   "selected_feature_count": 54,
   "excluded_feature_count": 148,

@@ -50,7 +50,7 @@ def test_summarize_relative_errors_reports_per_row_percent_metrics():
 def test_update_metrics_file_adds_model_label_when_metrics_file_has_no_model_column(tmp_path):
     metrics_path = tmp_path / "metrics.csv"
     pd.DataFrame(
-        [{"mae_dollars": 10.0, "rmse_dollars": 12.0, "r2_log": 0.9}]
+        [{"mae_dollars": 10.0, "rmse_dollars": 12.0, "r2_log_change": 0.9}]
     ).to_csv(metrics_path, index=False)
     summary = pd.DataFrame(
         [
