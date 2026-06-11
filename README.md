@@ -36,8 +36,16 @@ The notebook is designed to run in under one minute on the included compact data
 - `outputs/linear_regression_coefficients_by_feature.csv`: Ridge feature coefficient summary from the final model run.
 - `outputs/random_forest_permutation_importance.csv`: Random Forest permutation-importance output.
 - `outputs/xgboost_permutation_importance.csv`: XGBoost permutation-importance output.
-- `scripts/modeling/`: modeling scripts used to prepare selected features and relative-error metrics in the full project.
-- `scripts/pipeline/`: pipeline scripts used to construct feature tables in the full project.
+- `scripts/modeling/prepare_phase2_model_data.py`: prepares the phase-2 train/test modeling tables from the full joined feature panel.
+- `scripts/modeling/relative_error_metrics.py`: computes MAPE, median APE, and related holdout error summaries.
+- `scripts/modeling/select_phase2_features.py`: selects the compact final 54-feature schema used by the final models.
+- `scripts/pipeline/build_amenities_feature_table.py`: builds ZCTA-year amenity and business-pattern features.
+- `scripts/pipeline/build_crime_feature_table.py`: builds ZCTA-year crime estimate features.
+- `scripts/pipeline/build_demographics_feature_table.py`: builds ZCTA-year ACS demographic features.
+- `scripts/pipeline/build_listings_model_table.py`: builds annual housing/listing features from Redfin data.
+- `scripts/pipeline/build_minimum_wage_feature_table.py`: builds ZCTA-year minimum-wage policy features.
+- `scripts/pipeline/build_phase2_model_table.py`: joins source feature tables into the final phase-2 modeling panel.
+- `scripts/pipeline/build_school_quality_feature_table.py`: builds ZCTA-year school-quality and assessment-coverage features.
 - `report/final_report.pdf`: final project report PDF.
 
 ## Data-size note
